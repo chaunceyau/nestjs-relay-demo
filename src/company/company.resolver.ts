@@ -1,11 +1,15 @@
 import {
   Args,
   Context,
+  ID,
+  Info,
   Parent,
   Query,
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import { GraphQLResolveInfo } from 'graphql';
+import { toGlobalId } from 'graphql-relay';
 import { prisma } from '../main';
 //
 import { UserGraphModel } from '../user/models/user.model';
@@ -36,7 +40,11 @@ export class CompanyResolver {
 
   @ResolveField(returns => [UserGraphModel])
   users(@Context() ctx: any, @Parent() company: CompanyGraphModel) {
-    // return [{ id: '123', name: '1234lm' }];
     return ctx.companiesUsersLoader.load(company.id);
+  }
+
+  @ResolveField(_type => ID)
+  id(@Parent() parent: UserGraphModel, @Info() info: GraphQLResolveInfo) {
+    return toGlobalId(info.path.typename, parent.id);
   }
 }

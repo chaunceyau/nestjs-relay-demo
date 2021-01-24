@@ -3,7 +3,7 @@ import {
   ConnectionArguments as RelayConnectionArguments,
   ConnectionCursor,
 } from 'graphql-relay';
-import { ArgsType, Field, InputType, Int } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 
 import { CannotWith } from '../validators/cannot-with.validator';
 

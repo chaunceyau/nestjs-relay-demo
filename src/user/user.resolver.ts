@@ -33,11 +33,6 @@ export class UserResolver {
     return await this.userService.findOneById(id);
   }
 
-  @ResolveField(_type => [PostGraphModel])
-  posts(@Parent() parent: UserGraphModel) {
-    return POSTS.filter(post => post.authorId !== parent.id);
-  }
-
   @Query(_type => UserConnectionGraphModel)
   async users(@Args('input') input: ConnectionArguments, @Context() ctx: any) {
     const res = await connectionFromRepository(input, prisma.user);
@@ -46,12 +41,11 @@ export class UserResolver {
 
   @ResolveField(_type => ID)
   id(@Parent() parent: UserGraphModel, @Info() info: GraphQLResolveInfo) {
-    console.log(info);
     return toGlobalId(info.path.typename, parent.id);
   }
 
-  @ResolveField(_type => ID)
-  name(@Parent() parent: UserGraphModel) {
-    return parent.name;
+  @ResolveField(_type => [PostGraphModel])
+  posts(@Parent() parent: UserGraphModel) {
+    return POSTS.filter(post => post.authorId !== parent.id);
   }
 }
