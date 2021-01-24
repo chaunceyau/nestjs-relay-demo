@@ -19,15 +19,6 @@ export class UserEdgeGraphModel extends EdgeType<UserGraphModel>(
   UserGraphModel,
 ) {}
 
-@ObjectType('Post', { implements: Node })
-export class PostGraphModel implements Node {
-  @Field(_type => ID)
-  id: string;
-
-  @Field(_type => String)
-  title: string;
-}
-
 @InputType()
 export class FindUserInput implements ConnectionArguments {
   @Field(_type => Int, { nullable: true })

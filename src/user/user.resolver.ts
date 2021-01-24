@@ -13,16 +13,12 @@ import { toGlobalId } from 'graphql-relay';
 import { GraphQLResolveInfo } from 'graphql';
 //
 import { prisma } from '../main';
-import { POSTS } from '../data';
+// import { POSTS } from '../data';
 import { ConnectionArguments } from '../relay/connection.args';
 import { connectionFromRepository } from '../relay/connection.factory';
 //
 import { UserService } from './user.service';
-import {
-  UserGraphModel,
-  UserConnectionGraphModel,
-  PostGraphModel,
-} from './models/user.model';
+import { UserGraphModel, UserConnectionGraphModel } from './models/user.model';
 
 @Resolver(_of => UserGraphModel)
 export class UserResolver {
@@ -44,8 +40,8 @@ export class UserResolver {
     return toGlobalId(info.path.typename, parent.id);
   }
 
-  @ResolveField(_type => [PostGraphModel])
-  posts(@Parent() parent: UserGraphModel) {
-    return POSTS.filter(post => post.authorId !== parent.id);
-  }
+  // @ResolveField(_type => [PostGraphModel])
+  // posts(@Parent() parent: UserGraphModel) {
+  //   return POSTS.filter(post => post.authorId !== parent.id);
+  // }
 }

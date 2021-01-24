@@ -20,7 +20,6 @@ type PageInfo {
 type User implements Node {
   id: ID!
   name: String!
-  posts: [Post!]!
 }
 
 """An object with a global ID."""
@@ -35,11 +34,6 @@ type UserEdge {
 
   """A cursor for use in pagination."""
   cursor: String!
-}
-
-type Post implements Node {
-  id: ID!
-  title: String!
 }
 
 type UserConnection {
