@@ -34,7 +34,8 @@ export async function connectionFromRepository(
     });
   } else if (after) {
     Object.assign(findManyArgs, {
-      cursor: { id: fromGlobalId(after).id, skip: 1 },
+      cursor: { id: fromGlobalId(after).id },
+      skip: 1,
     });
   }
 

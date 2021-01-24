@@ -3,12 +3,12 @@ import {
   ConnectionArguments as RelayConnectionArguments,
   ConnectionCursor,
 } from 'graphql-relay';
-import { ArgsType, Field, Int } from '@nestjs/graphql';
+import { ArgsType, Field, InputType, Int } from '@nestjs/graphql';
 
 import { CannotWith } from '../validators/cannot-with.validator';
 
 // TODO: validate must provide at least first or last
-@ArgsType()
+@InputType()
 export class ConnectionArguments implements RelayConnectionArguments {
   @Field(() => String, {
     nullable: true,
