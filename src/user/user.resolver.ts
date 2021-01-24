@@ -31,6 +31,8 @@ import { Reflector } from '@nestjs/core';
 import { ArgumentMetadata, ExecutionContext, UseGuards } from '@nestjs/common';
 import { getArgumentValues } from 'graphql/execution/values';
 import { extractMetadata } from '@nestjs/graphql/dist/utils';
+import { connectionFromRepository } from 'src/relay/connection.factory';
+import { prisma } from 'src/main';
 
 // @InputType()
 // class Inpiut implements ConnectionArguments {
@@ -124,16 +126,22 @@ export class UserResolver {
     return POSTS.filter(post => post.authorId !== parent.id);
   }
 
-  @Query(_type => [UserGraphModel])
+  @Query(_type => UserConnectionGraphModel)
   // users(@Args('input') input: Inpiut): UserConnectionGraphModel {
-  async users(@Context() ctx: any): Promise<UserGraphModel[]> {
+  async users(@Context() ctx: any) {
+    //: Promise<UserConnectionGraphModel[]> {
     // console.log(
     //   await ctx.userLoader.loadMany([
     //     'ckbgj6qoa00010nun2hh961p9',
     //     'ckbgmm1wv00000nyz68xj8m0l',
     //   ]),
     // );
-    return []; //res.edges.map(({ node }) => ({ ...node }));
+    const res = await connectionFromRepository(
+      { first: 5, after: 'VXNlcjpja2JnbW0xd3YwMDAwMG55ejY4eGo4bTBs' },
+      prisma.user,
+    );
+    console.log({ res });
+    return res;
   }
 
   // const res = this.userService.findAll({

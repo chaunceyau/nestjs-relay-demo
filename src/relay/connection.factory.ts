@@ -1,13 +1,71 @@
 import { Prisma } from '@prisma/client';
 import {
   ConnectionArguments,
+  fromGlobalId,
   getOffsetWithDefault,
   offsetToCursor,
+  toGlobalId,
 } from 'graphql-relay';
 
 import { Connection } from './connection.interface';
 
 export async function connectionFromRepository(
+  args: ConnectionArguments,
+  repository: Prisma.UserDelegate,
+): Promise<Connection<any>> {
+  const { before, after, first, last } = args;
+
+  const totalCount = await repository.count();
+
+  // offsets
+  // const beforeOffset = getOffsetWithDefault(before, totalCount);
+  // const afterOffset = getOffsetWithDefault(after, -1);
+
+  // records
+  const findManyArgs = {
+    take: first || last * -1,
+  };
+
+  if (before) {
+    Object.assign(findManyArgs, {
+      cursor: { id: fromGlobalId(before).id },
+      // 1 or -1?
+      skip: 1,
+    });
+  } else if (after) {
+    Object.assign(findManyArgs, {
+      cursor: { id: fromGlobalId(after).id, skip: 1 },
+    });
+  }
+
+  const entities = await repository.findMany(findManyArgs);
+
+  const edges = entities.map((entity, index) => ({
+    cursor: toGlobalId('User', entity.id),
+    node: entity,
+  }));
+
+  // page info
+  const { length, 0: firstEdge, [length - 1]: lastEdge } = edges;
+  // const lowerBound = after ? afterOffset + 1 : 0;
+  // const upperBound = before ? Math.min(beforeOffset, totalCount) : totalCount;
+
+  const pageInfo = {
+    startCursor: firstEdge ? firstEdge.cursor : null,
+    endCursor: lastEdge ? lastEdge.cursor : null,
+    hasPreviousPage: false,
+    hasNextPage: true,
+    // hasPreviousPage: last ? startOffset > lowerBound : false,
+    // hasNextPage: first ? endOffset < upperBound : false,
+  };
+
+  return {
+    edges,
+    pageInfo,
+    totalCount,
+  };
+}
+export async function connectionFromRepositoryB(
   args: ConnectionArguments,
   repository: Prisma.UserDelegate,
 ): Promise<Connection<any>> {
