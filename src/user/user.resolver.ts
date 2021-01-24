@@ -31,8 +31,8 @@ export class UserResolver {
 
   @Query(_type => UserConnectionGraphModel)
   async users(@Args('input') input: ConnectionArguments, @Context() ctx: any) {
-    const users = [{}];
-    return connectionFromRepository(input, prisma.user);
+    // return connectionFromRepository(input, prisma.user);
+    return []
   }
 
   @ResolveField(_type => ID)

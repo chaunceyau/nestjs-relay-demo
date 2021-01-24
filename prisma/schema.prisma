@@ -12,7 +12,7 @@ generator client {
 
 model User {
   id        Int     @id @default(autoincrement())
-  name      String  @map("email")
+  email     String
   company   Company @relation(fields: [companyId], references: [id])
   companyId Int     @map("company_id")
 }

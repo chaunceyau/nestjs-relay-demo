@@ -29,20 +29,35 @@ import { CompanyModule } from '../company/company.module';
             where: { companyId: { in: companyIds.flat() } },
           });
 
-          // console.log({ users });
-
           const grouped = groupBy(u => u.companyId, users);
 
           return map(companyId => grouped[companyId], companyIds.flat());
         }),
         companyLoader: new DataLoader(async (companyIds: number[]) => {
-          const companies = await prisma.company.findMany({
-            where: { id: { in: companyIds.flat() } },
-          });
+          console.log('companyloader');
+          const findManyArgs = {};
 
+          // console.log({ companyIds });
+
+          if (companyIds.length > 0) {
+            Object.assign(findManyArgs, {
+              where: { id: { in: companyIds.flat() } },
+            });
+          }
+
+          const companies = await prisma.company.findMany(findManyArgs);
+          console.log(companies);
           const grouped = groupBy(u => u.id.toString(), companies);
+          const mapped = map(
+            companyId => grouped[companyId],
+            companyIds.flat(),
+          );
 
-          return map(companyId => grouped[companyId], companyIds.flat());
+          // console.log({ companies });
+          // console.log({ grouped });
+          // console.log({ mapped });
+
+          return mapped.flat();
         }),
       }),
     }),

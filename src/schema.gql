@@ -19,7 +19,7 @@ type PageInfo {
 
 type User implements Node {
   id: ID!
-  name: String!
+  email: String!
 }
 
 """An object with a global ID."""
@@ -50,12 +50,31 @@ type UserConnection {
 type Company implements Node {
   id: ID!
   title: String!
-  users: [User!]!
+  users: UserConnection!
+}
+
+type CompanyEdge {
+  """The item at the end of the edge."""
+  node: Company!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+type CompanyConnection {
+  """A list of edges."""
+  edges: [CompanyEdge]
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """Identifies the total count of items in the connection."""
+  totalCount: Float!
 }
 
 type Query {
   company: Company!
-  companies: [Company!]!
+  companies(input: ConnectionArguments!): CompanyConnection!
   user(id: Float!): User!
   users(input: ConnectionArguments!): UserConnection!
 }

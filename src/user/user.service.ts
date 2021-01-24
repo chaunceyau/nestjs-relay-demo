@@ -24,9 +24,9 @@ export class UserService {
 
   async findAll(params: ForwardPagination | BackwardPagination) {
     console.log(
-      JSON.stringify(
-        await connectionFromRepository({ first: 2400 }, prisma.user),
-      ),
+      // JSON.stringify(
+      //   await connectionFromRepository({ first: 2400 }, prisma.user),
+      // ),
     );
     return;
     // if ('first' in params) {

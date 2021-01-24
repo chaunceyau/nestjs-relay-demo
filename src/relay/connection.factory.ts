@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import DataLoader from 'dataloader';
 import {
   ConnectionArguments,
   fromGlobalId,
@@ -6,12 +7,13 @@ import {
   offsetToCursor,
   toGlobalId,
 } from 'graphql-relay';
-
+import { groupBy, map } from 'ramda';
+// 
 import { Connection } from './connection.interface';
 
 export async function connectionFromRepository(
   args: ConnectionArguments,
-  repository: Prisma.UserDelegate,
+  repository: Prisma.CompanyDelegate,
 ): Promise<Connection<any>> {
   const { before, after, first, last } = args;
 
@@ -39,6 +41,23 @@ export async function connectionFromRepository(
     });
   }
 
+  // const companyLoader = new DataLoader(async (companyIds: number[]) => {
+  //   const findManyArgs = {};
+
+  //   if (companyIds.length > 0) {
+  //     Object.assign(findManyArgs, {
+  //       where: { id: { in: companyIds.flat() } },
+  //     });
+  //   }
+
+  //   const companies: any = await repository.findMany(findManyArgs);
+  //   const grouped: any = groupBy((u: any) => u.id.toString(), companies);
+  //   // console.log('companies', grouped);
+  //   // console.log('mapped', map(companyId => grouped[companyId], companyIds.flat()));
+
+  //   return map(companyId => grouped[companyId], companyIds.flat());
+  // });
+
   const entities = await repository.findMany(findManyArgs);
 
   const edges = entities.map((entity, index) => ({
@@ -54,7 +73,7 @@ export async function connectionFromRepository(
   const pageInfo = {
     startCursor: firstEdge ? firstEdge.cursor : null,
     endCursor: lastEdge ? lastEdge.cursor : null,
-    hasPreviousPage: false,
+    hasPreviousPage: true,
     hasNextPage: true,
     // hasPreviousPage: last ? startOffset > lowerBound : false,
     // hasNextPage: first ? endOffset < upperBound : false,

@@ -1,7 +1,8 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { UserGraphModel } from 'src/user/models/user.model';
 //
 import { Node } from '../../relay/node.interface';
+import { EdgeType } from '../../relay/edge.generic';
+import { ConnectionType } from '../../relay/connection.generic';
 
 @ObjectType('Company', { implements: Node })
 export class CompanyGraphModel implements Node {
@@ -10,10 +11,13 @@ export class CompanyGraphModel implements Node {
 
   @Field(_type => String)
   title: string;
-
-  // @Field(_type => [UserGraphModel])
-  // users: UserGraphModel[];
 }
+@ObjectType('CompanyEdge')
+export class CompanyEdgeGraphModel extends EdgeType<CompanyGraphModel>(
+  CompanyGraphModel,
+) {}
 
-// @ObjectType('UserConnection')
-// export class UserConnectionGraphModel extends Connection(UserGraphModel) {}
+@ObjectType('CompanyConnection')
+export class CompanyConnectionGraphModel extends ConnectionType<any>(
+  CompanyEdgeGraphModel,
+) {}
