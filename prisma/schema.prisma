@@ -11,14 +11,14 @@ generator client {
 }
 
 model User {
-  id        String  @id @default(cuid())
+  id        Int     @id @default(autoincrement())
   name      String  @map("email")
   company   Company @relation(fields: [companyId], references: [id])
-  companyId String  @map("company_id")
+  companyId Int     @map("company_id")
 }
 
 model Company {
-  id    String @id @default(cuid())
+  id    Int    @id @default(autoincrement())
   title String
   users User[]
 }

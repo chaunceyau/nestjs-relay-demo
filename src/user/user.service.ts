@@ -18,7 +18,7 @@ const USERS = [
 
 @Injectable()
 export class UserService {
-  findOneById(id: string) {
+  findOneById(id: number) {
     return prisma.user.findUnique({ where: { id } });
   }
 

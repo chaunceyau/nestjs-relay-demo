@@ -25,14 +25,14 @@ export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Query(_type => UserGraphModel)
-  async user(@Args('id') id: string, @Context() ctx) {
+  async user(@Args('id') id: number, @Context() ctx) {
     return await this.userService.findOneById(id);
   }
 
   @Query(_type => UserConnectionGraphModel)
   async users(@Args('input') input: ConnectionArguments, @Context() ctx: any) {
-    const res = await connectionFromRepository(input, prisma.user);
-    return res;
+    const users = [{}];
+    return connectionFromRepository(input, prisma.user);
   }
 
   @ResolveField(_type => ID)

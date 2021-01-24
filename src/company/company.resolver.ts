@@ -25,17 +25,10 @@ export class CompanyResolver {
 
   @Query(_type => [CompanyGraphModel])
   async companies(@Context() ctx: any) {
-    // const company = ctx.companyLoader.load(['ckbggxwyj000101ldbvz86dnb']);
-    const companies = await prisma.company.findMany({
-      where: {
-        id: { in: ['ckbggxwyj000101ldbvz86dnb', 'ckdujtmma000001l6fu7faxhp'] },
-      },
-    });
-
-    return companies.map(c => ({
-      id: c.id,
-      title: c.title,
-    }));
+    return ctx.companyLoader.load([
+      'ckbggxwyj000101ldbvz86dnb',
+      'ckdujtmma000001l6fu7faxhp',
+    ]);
   }
 
   @ResolveField(returns => [UserGraphModel])
@@ -48,3 +41,9 @@ export class CompanyResolver {
     return toGlobalId(info.path.typename, parent.id);
   }
 }
+// const company = ctx.companyLoader.load(['ckbggxwyj000101ldbvz86dnb']);
+// const companies = await prisma.company.findMany({
+//   where: {
+//     id: { in: ['ckbggxwyj000101ldbvz86dnb', 'ckdujtmma000001l6fu7faxhp'] },
+//   },
+// });

@@ -56,7 +56,7 @@ type Company implements Node {
 type Query {
   company: Company!
   companies: [Company!]!
-  user(id: String!): User!
+  user(id: Float!): User!
   users(input: ConnectionArguments!): UserConnection!
 }
 

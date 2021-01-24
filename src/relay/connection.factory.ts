@@ -42,7 +42,7 @@ export async function connectionFromRepository(
   const entities = await repository.findMany(findManyArgs);
 
   const edges = entities.map((entity, index) => ({
-    cursor: toGlobalId('User', entity.id),
+    cursor: toGlobalId('User', entity.id.toString()),
     node: entity,
   }));
 
