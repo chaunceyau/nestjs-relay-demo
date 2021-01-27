@@ -8,7 +8,7 @@ import {
   toGlobalId,
 } from 'graphql-relay';
 import { groupBy, map } from 'ramda';
-// 
+//
 import { Connection } from './connection.interface';
 
 export async function connectionFromRepository(
@@ -90,6 +90,7 @@ export async function connectionFromRepositoryB(
   repository: Prisma.UserDelegate,
 ): Promise<Connection<any>> {
   const { before, after, first, last } = args;
+  console.log({ after, first });
 
   const totalCount = await repository.count();
 
@@ -113,6 +114,7 @@ export async function connectionFromRepositoryB(
   const take = Math.max(endOffset - startOffset, 1); // sql limit
 
   // records
+  console.log({ skip, take });
   const entities = await repository.findMany({ skip, take });
 
   const edges = entities.map((entity, index) => ({

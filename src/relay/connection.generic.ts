@@ -1,4 +1,4 @@
-import { Edge } from 'graphql-relay';
+import { connectionDefinitions, Edge } from 'graphql-relay';
 import { Type } from '@nestjs/common';
 import { Field, ObjectType } from '@nestjs/graphql';
 
@@ -10,6 +10,14 @@ type NodeType<E> = E extends Edge<infer N> ? N : unknown;
 export function ConnectionType<E extends Edge<N>, N = NodeType<E>>(
   EdgeType: Type<E>,
 ): any {
+  // const {
+  //   connectionType: GenericConnection,
+  //   edgeType: GraphQLGenericEdge,
+  // } = connectionDefinitions({
+  //   name: '',
+  //   nodeType: EdgeType.prototype,
+  // });
+
   @ObjectType({ isAbstract: true })
   abstract class ConnectionClass implements Connection<N> {
     @Field(() => [EdgeType], {

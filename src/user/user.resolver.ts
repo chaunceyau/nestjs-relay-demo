@@ -9,7 +9,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 //
-import { toGlobalId } from 'graphql-relay';
+import { connectionFromPromisedArray, toGlobalId } from 'graphql-relay';
 import { GraphQLResolveInfo } from 'graphql';
 //
 import { prisma } from '../main';
@@ -31,13 +31,22 @@ export class UserResolver {
 
   @Query(_type => UserConnectionGraphModel)
   async users(@Args('input') input: ConnectionArguments, @Context() ctx: any) {
-    // return connectionFromRepository(input, prisma.user);
-    return []
+    return connectionFromPromisedArray(
+      prisma.user.findMany({ take: input.first }),
+      {},
+    );
+    // return []
   }
 
   @ResolveField(_type => ID)
   id(@Parent() parent: UserGraphModel, @Info() info: GraphQLResolveInfo) {
-    return toGlobalId(info.path.typename, parent.id);
+    console.log(
+      'resolving id',
+      info.parentType.name,
+      parent.id,
+      toGlobalId(info.parentType.name, parent.id),
+    );
+    return toGlobalId(info.parentType.name, parent.id);
   }
 
   // @ResolveField(_type => [PostGraphModel])

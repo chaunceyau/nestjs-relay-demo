@@ -9,9 +9,13 @@ import {
   Query,
   Resolver,
   Root,
+  Int,
 } from '@nestjs/graphql';
 
 import { Node } from './node.interface';
+import { prisma } from 'src/main';
+import { UserGraphModel } from 'src/user/models/user.model';
+import { CompanyGraphModel } from 'src/company/models/company.model';
 
 @Resolver(() => Node)
 export class NodeResolver {
@@ -23,21 +27,31 @@ export class NodeResolver {
     return toGlobalId(name, id);
   }
 
-  private async fetcher(
-    globalId: string,
-    { repositories }: any,
-  ): Promise<Node | undefined> {
+  private async fetcher(globalId: string): Promise<Node | undefined> {
+    console.log({ globalId });
     const { type, id } = fromGlobalId(globalId);
 
-    const repository = repositories[type];
-
-    if (!repository) {
-      throw new UserInputError(
-        `Could not resolve to a node with the global ID of '${globalId}'`,
-      );
+    // if (!repository) {
+    //   throw new UserInputError(
+    //     `Could not resolve to a node with the global ID of '${globalId}'`,
+    //   );
+    // }
+    const idn = parseInt(id);
+    console.log('FETCHER');
+    switch (type) {
+      case 'Company': {
+        const company = await prisma.company.findUnique({ where: { id: idn } });
+        return new CompanyGraphModel(company);
+        // return { id: company.id.toString() };
+        // return { id: toGlobalId('Company', company.id.toString()) };
+      }
+      default:
+      case 'User': {
+        const user = await prisma.user.findUnique({ where: { id: idn } });
+        return new UserGraphModel(user);
+        // return { id: user.id.toString() };
+      }
     }
-
-    return await repository.findOne(id);
   }
 
   // TODO: use dataloader
@@ -45,7 +59,7 @@ export class NodeResolver {
     nullable: true,
     description: 'Fetches an object given its global ID.',
   })
-  node(
+  async node(
     @Args('id', {
       type: () => ID,
       description: 'The global ID of the object.',
@@ -53,7 +67,8 @@ export class NodeResolver {
     globalId: string,
     @Ctx() context: any,
   ): ReturnType<NodeResolver['fetcher']> {
-    return this.fetcher(globalId, context);
+    const node = await this.fetcher(globalId);
+    return node;
   }
 
   @Query(() => [Node], {
@@ -68,6 +83,6 @@ export class NodeResolver {
     globalIds: Array<string>,
     @Ctx() context: any,
   ): Array<ReturnType<NodeResolver['fetcher']>> {
-    return globalIds.map(id => this.fetcher(id, context));
+    return globalIds.map(id => this.fetcher(id));
   }
 }

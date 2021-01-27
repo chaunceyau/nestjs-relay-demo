@@ -2,6 +2,13 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+"""An object with a global ID."""
+interface Node {
+  """The global ID of the object."""
+  id: ID!
+  globalId: String!
+}
+
 """Information about pagination in a connection."""
 type PageInfo {
   """When paginating backwards, the cursor to continue."""
@@ -19,13 +26,8 @@ type PageInfo {
 
 type User implements Node {
   id: ID!
+  globalId: String!
   email: String!
-}
-
-"""An object with a global ID."""
-interface Node {
-  """The global ID of the object."""
-  id: ID!
 }
 
 type UserEdge {
@@ -49,8 +51,9 @@ type UserConnection {
 
 type Company implements Node {
   id: ID!
+  globalId: String!
   title: String!
-  users: UserConnection!
+  users(last: Int, first: Int, cursor: String): UserConnection!
 }
 
 type CompanyEdge {
@@ -73,6 +76,17 @@ type CompanyConnection {
 }
 
 type Query {
+  """Fetches an object given its global ID."""
+  node(
+    """The global ID of the object."""
+    id: ID!
+  ): Node
+
+  """Fetches objects given their global IDs."""
+  nodes(
+    """The global IDs of the objects."""
+    ids: [ID!]!
+  ): [Node]!
   company: Company!
   companies(input: ConnectionArguments!): CompanyConnection!
   user(id: Float!): User!

@@ -7,6 +7,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { prisma } from '../main';
 import { UserModule } from '../user/user.module';
 import { CompanyModule } from '../company/company.module';
+import { NodeResolver } from 'src/relay/node.resolver'
 
 @Module({
   imports: [
@@ -62,5 +63,8 @@ import { CompanyModule } from '../company/company.module';
       }),
     }),
   ],
+  providers: [
+    NodeResolver
+  ]
 })
 export class AppModule {}

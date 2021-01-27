@@ -1,8 +1,9 @@
-import { ConnectionCursor, Edge } from 'graphql-relay';
+import { ConnectionCursor, connectionDefinitions, Edge } from 'graphql-relay';
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Type } from '@nestjs/common';
 
 export function EdgeType<N>(NodeType: Type<N>): any {
+
   @ObjectType({ isAbstract: true })
   abstract class EdgeClass implements Edge<N> {
     @Field(() => NodeType, {

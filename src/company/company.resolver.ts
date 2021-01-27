@@ -3,20 +3,28 @@ import {
   Context,
   ID,
   Info,
+  Int,
   Parent,
   Query,
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import { Prisma } from '@prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
 import {
+  connectionFromArray,
   connectionFromPromisedArray,
+  cursorForObjectInConnection,
+  cursorToOffset,
   fromGlobalId,
   toGlobalId,
 } from 'graphql-relay';
 import { prisma } from 'src/main';
 import { ConnectionArguments } from 'src/relay/connection.args';
-import { connectionFromRepository } from 'src/relay/connection.factory';
+import {
+  connectionFromRepository,
+  connectionFromRepositoryB,
+} from 'src/relay/connection.factory';
 //
 import {
   UserConnectionGraphModel,
@@ -31,7 +39,7 @@ import {
 export class CompanyResolver {
   @Query(_type => CompanyGraphModel)
   async company(@Context() ctx: any) {
-    const company = await ctx.companyLoader.load(['']);
+    const company = await ctx.companyLoader.load(2);
     return company;
   }
 
@@ -43,8 +51,6 @@ export class CompanyResolver {
     const findManyArgs = {
       take: input.first + 1,
     };
-    
-    console.log('COMPANIES', input);
 
     let cursor;
 
@@ -54,7 +60,6 @@ export class CompanyResolver {
       cursor = parseInt(fromGlobalId(input.before).id);
     }
 
-    console.log('cursor', cursor);
     if (cursor) {
       Object.assign(findManyArgs, {
         cursor: {
@@ -63,34 +68,83 @@ export class CompanyResolver {
       });
     }
 
-    return connectionFromPromisedArray(
-      prisma.company.findMany(findManyArgs),
-      { first: 1 },
-      // ctx.companyLoader.loadMany([1, 2, 3]),
-      // {},
-    );
-    // return connectionFromRepository({}, ctx.companyLoader.load([1]));
-    // return connectionFromPromisedArray(ctx.companyLoader.load([1,2,3]), {
-    //   first: 5,
-    // });
+    return connectionFromPromisedArray(prisma.company.findMany(findManyArgs), {
+      first: findManyArgs.take,
+    });
   }
 
   @ResolveField(_returns => UserConnectionGraphModel)
-  async users(@Context() ctx: any, @Parent() company: CompanyGraphModel) {
-    return connectionFromPromisedArray(
-      ctx.companiesUsersLoader.load(company.id),
-      {}, // { first: 1 },
+  async users(
+    @Args('cursor', { nullable: true }) cursor: string,
+    @Args('first', { type: () => Int, nullable: true }) first: number,
+    @Args('last', { type: () => Int, nullable: true }) last: number,
+    // @Args('input') input: ConnectionArguments,
+    @Context() ctx: any,
+    @Parent() company: CompanyGraphModel,
+  ) {
+    console.log({ cursor });
+    return connectionFromRepositoryB({ first, after: cursor }, prisma.user);
+    // parseInt(fromGlobalId(company.id)
+    const findManyArgs: Prisma.UserFindManyArgs = {
+      where: { companyId: parseInt(company.id) },
+    };
+
+    if (first) {
+      findManyArgs['take'] = first;
+      // findManyArgs['take'] = first + 1;
+    } else if (last) {
+      findManyArgs['take'] = last * -1;
+      // findManyArgs['take'] = last * -1 - 1;
+    }
+
+    console.log(`fromGlobalId("YXJyYXljb25uZWN0aW9uOjA=")`);
+    console.log(fromGlobalId('YXJyYXljb25uZWN0aW9uOjI='));
+
+    if (cursor) {
+      console.log('CCURUURURSOOORRR', fromGlobalId(cursor));
+      console.log(cursorToOffset(cursor));
+      findManyArgs['cursor'] = { id: parseInt(fromGlobalId(cursor).id) };
+      // Object.assign(findManyArgs, { cursor });
+    }
+
+    console.log({ findManyArgs });
+
+    const connectionArgs = {};
+
+    if (first) {
+      connectionArgs['first'] = first;
+      if (cursor) {
+        connectionArgs['after'] = cursor;
+      }
+    } else if (last) {
+      connectionArgs['last'] = last;
+      if (cursor) {
+        connectionArgs['before'] = cursor;
+      }
+    }
+    const dbUsers = await prisma.user.findMany(findManyArgs);
+    console.log(
+      connectionFromArray(
+        dbUsers.map(u => new UserGraphModel(u)),
+        {
+          first,
+        },
+      ),
     );
+    return connectionFromArray(
+      dbUsers.map(u => new UserGraphModel(u)),
+      {
+        first,
+      },
+    );
+    // return connectionFromPromisedArray(
+    //   ctx.companiesUsersLoader.load(company.id),
+    //   {},
+    // );
   }
 
   @ResolveField(_type => ID)
   id(@Parent() parent: UserGraphModel, @Info() info: GraphQLResolveInfo) {
-    return toGlobalId(info.path.typename, parent.id);
+    return toGlobalId(info.parentType.name, parent.id);
   }
 }
-// const company = ctx.companyLoader.load(['ckbggxwyj000101ldbvz86dnb']);
-// const companies = await prisma.company.findMany({
-//   where: {
-//     id: { in: ['ckbggxwyj000101ldbvz86dnb', 'ckdujtmma000001l6fu7faxhp'] },
-//   },
-// });
